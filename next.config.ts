@@ -6,10 +6,8 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
-  // React compiler for React 19
   reactStrictMode: true,
 
-  // Image optimization
   images: {
     remotePatterns: [
       {
@@ -36,15 +34,13 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
 
-  // Compiler optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
 
-  // Experimental features
   experimental: {
     optimizePackageImports: [
       "lucide-react",
@@ -63,28 +59,15 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // Headers for security & performance
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: [
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on",
-          },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
-          },
-          {
-            key: "X-Frame-Options",
-            value: "SAMEORIGIN",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+          { key: "X-XSS-Protection", value: "1; mode=block" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
           {
             key: "Referrer-Policy",
             value: "strict-origin-when-cross-origin",
@@ -121,23 +104,13 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Redirects
   async redirects() {
     return [
-      {
-        source: "/home",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/products",
-        destination: "/shop",
-        permanent: true,
-      },
+      { source: "/home", destination: "/", permanent: true },
+      { source: "/products", destination: "/shop", permanent: true },
     ];
   },
 
-  // Rewrites for CDN
   async rewrites() {
     return [
       {
@@ -147,10 +120,14 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Webpack configuration for Three.js
   webpack: (config, { isServer }) => {
-    // Handle Three.js
     config.externals = config.externals || [];
+
+    // ✅ CRITICAL FIX: Force single Three.js instance (fixes R3F crashes)
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      three: require.resolve("three"),
+    };
 
     if (!isServer) {
       config.resolve.fallback = {
@@ -161,7 +138,7 @@ const nextConfig: NextConfig = {
       };
     }
 
-    // Handle GLSL shader files
+    // GLSL support (you already had this — keeping it)
     config.module.rules.push({
       test: /\.(glsl|vs|fs|vert|frag)$/,
       exclude: /node_modules/,
@@ -171,27 +148,16 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Output for Docker / standalone
   output: "standalone",
-
-  // PoweredByHeader
   poweredByHeader: false,
-
-  // Compression
   compress: true,
-
-  // Generate ETags
   generateEtags: true,
-
-  // Page extensions
   pageExtensions: ["ts", "tsx", "js", "jsx"],
 
-  // ESLint during build
   eslint: {
     ignoreDuringBuilds: false,
   },
 
-  // TypeScript during build
   typescript: {
     ignoreBuildErrors: false,
   },

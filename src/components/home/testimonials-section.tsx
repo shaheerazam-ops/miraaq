@@ -6,7 +6,7 @@ import { Star, Quote } from "lucide-react";
 const testimonials = [
   {
     name: "Sarah Al-Rashid",
-    location: "Dubai, UAE",
+    location: "Karachi, Pakistan",
     rating: 5,
     text: "The Royal Oud is absolutely divine. It lasts all day and the compliments never stop. Miraaq has become my signature scent.",
   },

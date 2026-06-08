@@ -12,11 +12,11 @@ export default function TermsPage() {
       </section>
       <section>
         <h2>Products & Pricing</h2>
-        <p>All prices are in USD and subject to change without notice. We reserve the right to limit quantities and refuse service. Product images are representative; actual packaging may vary slightly.</p>
+        <p>All prices are in PKR and subject to change without notice. We reserve the right to limit quantities and refuse service. Product images are representative; actual packaging may vary slightly.</p>
       </section>
       <section>
         <h2>Orders & Payment</h2>
-        <p>Orders are confirmed upon successful payment processing. We accept Visa, Mastercard, Apple Pay, and Google Pay through Stripe. You are responsible for providing accurate shipping information.</p>
+        <p>Orders are confirmed upon successful payment processing. We accept Visa, Mastercard, jazzcash, and easypaisa through secure payment partners. You are responsible for providing accurate shipping information.</p>
       </section>
       <section>
         <h2>Intellectual Property</h2>

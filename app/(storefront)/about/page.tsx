@@ -10,7 +10,7 @@ const timeline = [
   { year: "1724", event: "The Al-Rashid family begins distilling oud in the Arabian Peninsula" },
   { year: "1892", event: "First international export to Ottoman courts and European nobility" },
   { year: "1967", event: "Master perfumer Khalid Al-Rashid develops the signature amber-oud blend" },
-  { year: "2018", event: "Miraaq brand launched globally with flagship atelier in Dubai" },
+  { year: "2018", event: "Miraaq brand launched globally with flagship atelier in pakistan" },
   { year: "2024", event: "Fragrance Foundation Award for Royal Cambodian Oud" },
 ];
 

@@ -96,7 +96,7 @@ export function BrandStorySection() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
                 <p className="font-arabic text-6xl text-emerald-500/50 mb-4">عود</p>
-                <p className="font-display text-2xl tracking-[0.3em] text-gold-400/60">SINCE 1724</p>
+                <p className="font-display text-2xl tracking-[0.3em] text-gold-400/60">STARTING 2026</p>
               </div>
             </div>
             <div className="absolute inset-0 border border-gold-500/20 rounded-lg m-4" />
