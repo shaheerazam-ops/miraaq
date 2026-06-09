@@ -1,6 +1,6 @@
-import type { NextAuthConfig } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
+import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -10,29 +10,34 @@ const loginSchema = z.object({
   password: z.string().min(8),
 });
 
-export const authConfig: NextAuthConfig = {
+export const authConfig: NextAuthOptions = {
   pages: {
     signIn: "/login",
     error: "/login",
     verifyRequest: "/verify-email",
   },
+
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
+
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      allowDangerousEmailAccountLinking: false,
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    Credentials({
+
+    CredentialsProvider({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
+
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
 
@@ -40,9 +45,13 @@ export const authConfig: NextAuthConfig = {
           where: { email: parsed.data.email.toLowerCase() },
         });
 
-        if (!user || !user.password) return null;
+        if (!user?.password) return null;
 
-        const valid = await bcrypt.compare(parsed.data.password, user.password);
+        const valid = await bcrypt.compare(
+          parsed.data.password,
+          user.password
+        );
+
         if (!valid) return null;
 
         return {
@@ -55,41 +64,22 @@ export const authConfig: NextAuthConfig = {
       },
     }),
   ],
+
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id!;
-        token.role = (user as { role?: string }).role ?? "USER";
-      }
-      if (trigger === "update" && session) {
-        token.name = session.name;
-        token.picture = session.image;
+        token.id = (user as any).id;
+        token.role = (user as any).role ?? "USER";
       }
       return token;
     },
+
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
       }
       return session;
     },
-    authorized({ auth, request }) {
-      const { pathname } = request.nextUrl;
-      const isLoggedIn = !!auth?.user;
-      const isAdmin = auth?.user?.role === "ADMIN";
-
-      if (pathname.startsWith("/admin")) {
-        return isAdmin;
-      }
-      if (pathname.startsWith("/dashboard")) {
-        return isLoggedIn;
-      }
-      if (pathname.startsWith("/checkout")) {
-        return isLoggedIn;
-      }
-      return true;
-    },
   },
-  trustHost: true,
 };

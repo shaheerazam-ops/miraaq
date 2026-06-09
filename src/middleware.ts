@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth/auth";
-
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+import { getToken } from "next-auth/jwt";
 
 const RATE_LIMIT = 100;
 const RATE_WINDOW = 60 * 1000;
 
-function rateLimit(ip: string): boolean {
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function rateLimit(ip: string) {
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
 
@@ -16,42 +16,46 @@ function rateLimit(ip: string): boolean {
   }
 
   if (entry.count >= RATE_LIMIT) return false;
+
   entry.count++;
   return true;
 }
 
-export default auth((req) => {
+export async function middleware(req: any) {
   const { pathname } = req.nextUrl;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  const isLoggedIn = !!token;
+
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
 
   if (pathname.startsWith("/api/")) {
     if (!rateLimit(ip)) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429 }
+      );
     }
   }
 
-  const response = NextResponse.next();
-
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "SAMEORIGIN");
-  response.headers.set("X-XSS-Protection", "1; mode=block");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-
-  if (pathname.startsWith("/api/")) {
-    const origin = req.headers.get("origin");
-    const allowedOrigin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    if (origin === allowedOrigin) {
-      response.headers.set("Access-Control-Allow-Origin", origin);
-      response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-      response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    }
+  if (pathname.startsWith("/dashboard") && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  return response;
-});
+  const res = NextResponse.next();
+
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("X-Frame-Options", "SAMEORIGIN");
+  res.headers.set("X-XSS-Protection", "1; mode=block");
+
+  return res;
+}
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/((?!_next|favicon.ico).*)"],
 };

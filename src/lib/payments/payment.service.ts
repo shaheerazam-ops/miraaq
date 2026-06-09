@@ -153,7 +153,69 @@ export class PaymentService {
     await generateInvoice(payment.orderId);
     await notificationService.sendOrderConfirmationNotification(payment.order);
   }
+  // ---------------- WEBHOOK ----------------
+  async processWebhook(
+    gateway: PaymentGatewayId,
+    payload: Record<string, unknown>,
+    headers: Record<string, string>,
+    rawBody?: string
+  ) {
+    try {
+      const gatewayInstance =
+        PaymentGatewayRegistry.getGateway(gateway);
 
+      // If your gateway implements validateWebhook
+      if (
+        "validateWebhook" in gatewayInstance &&
+        typeof (gatewayInstance as any).validateWebhook === "function"
+      ) {
+        const validation = await (gatewayInstance as any).validateWebhook(
+          payload,
+          headers,
+          rawBody
+        );
+
+        if (!validation?.valid) {
+          return {
+            success: false,
+            message: "Invalid webhook",
+          };
+        }
+
+        const paymentId =
+          validation?.metadata?.paymentId ||
+          (payload["paymentId"] as string);
+
+        if (!paymentId) {
+          return {
+            success: false,
+            message: "Payment ID missing",
+          };
+        }
+
+        if (validation.status === "completed") {
+          await this.completePayment(paymentId, validation);
+        }
+
+        return {
+          success: true,
+          message: "Webhook processed",
+        };
+      }
+
+      return {
+        success: true,
+        message: "Webhook received",
+      };
+    } catch (error) {
+      console.error("[PaymentService] Webhook error:", error);
+
+      return {
+        success: false,
+        message: "Webhook processing failed",
+      };
+    }
+  }
   // ---------------- FIX: gateway mapper ----------------
   private mapGateway(gateway: string): PaymentGateway {
     const map: Record<string, PaymentGateway> = {
