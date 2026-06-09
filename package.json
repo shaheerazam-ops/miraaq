@@ -27,7 +27,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.7.2",
+    "@auth/prisma-adapter": "^2.11.2",
     "@cloudinary/url-gen": "^1.21.0",
     "@hookform/resolvers": "^3.9.1",
     "@next/bundle-analyzer": "^15.0.0",
@@ -78,12 +78,11 @@
     "next": "^15.0.4",
     "next-auth": "^4.24.14",
     "next-themes": "^0.4.4",
-    "nodemailer": "^6.10.1",
+    "nodemailer": "^7.0.13",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "react-hot-toast": "^2.4.1",
-    "react-image-magnify": "^2.7.4",
     "react-intersection-observer": "^9.13.1",
     "recharts": "^2.13.3",
     "sharp": "^0.33.5",

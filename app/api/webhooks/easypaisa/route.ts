@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { paymentService } from "@/services/payment.service";
+import { paymentService } from "@/lib/payments/payment.service";
 import { apiSuccess, apiError } from "@/lib/api-utils";
 
 // Easypaisa sends POST as application/x-www-form-urlencoded

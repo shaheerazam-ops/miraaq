@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PolicyPage } from "../privacy-policy/page";
+import PolicyPage from "@/components/policy/PolicyPage";
 
 export const metadata: Metadata = { title: "Terms of Service" };
 
