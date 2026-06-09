@@ -1,14 +1,21 @@
 import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
+
+type Context = {
+  params: {
+    id: string;
+  };
+};
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: Context
 ) {
   try {
+    const { id } = context.params;
+
     const address = await prisma.address.findUnique({
-      where: {
-        id: params.id,
-      },
+      where: { id },
     });
 
     return Response.json(address);
