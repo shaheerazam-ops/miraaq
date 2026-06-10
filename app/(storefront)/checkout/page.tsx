@@ -295,6 +295,18 @@ export default function CheckoutPage() {
         form.submit();
         return;
       }
+      // 3. Optional deep link support (mobile wallets)
+      if (data.deepLink) {
+        window.location.href = data.deepLink;
+        return;
+      }
+
+      // 4. QR fallback (if you ever use JazzCash QR)
+      if (data.qrCode) {
+        toast.message("Scan QR to complete payment");
+        return;
+      }
+      
 
       // Fallback — should not happen with a correct gateway implementation
       toast.error("Unexpected response from payment provider. Please try again.");
