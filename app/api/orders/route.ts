@@ -9,12 +9,18 @@ import { appConfig } from "@/lib/env";
 import { apiSuccess, apiError, handleApiError, parseSearchParams } from "@/lib/api-utils";
 
 const createOrderSchema = z.object({
+  items: z.array(
+    z.object({
+      productId: z.string(),
+      quantity: z.number().min(1),
+    })
+  ),
   shippingAddress: addressSchema,
   billingAddress: addressSchema,
+  sameAsBilling: z.boolean().optional(),
   notes: z.string().optional(),
   couponCode: z.string().optional(),
 });
-
 function serializeOrder(order: {
   id: string;
   orderNumber: string;
